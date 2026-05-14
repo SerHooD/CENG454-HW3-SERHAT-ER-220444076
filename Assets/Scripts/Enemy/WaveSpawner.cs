@@ -49,9 +49,22 @@ public class WaveSpawner : MonoBehaviour
         for (int i = 0; i < enemiesPerWave; i++)
         {
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            ObjectPool pool = (i % 2 == 0) ? enemyPool : flankerPool;
-            GameObject enemy = pool.Get();
-            enemy.transform.position = spawnPoint.position;
+            
+            bool isFlanker = (i % 2 != 0);
+            ObjectPool pool = isFlanker ? flankerPool : enemyPool;
+            
+            GameObject enemyObj = pool.Get();
+            enemyObj.transform.position = spawnPoint.position;
+            
+            Enemy enemy = enemyObj.GetComponent<Enemy>();
+            enemy.Init(pool);
+
+            IMovementStrategy strategy = isFlanker
+                ? (IMovementStrategy)new FlankMoveStrategy(3f)
+                : new DirectMoveStrategy(3f);
+            
+            enemy.SetStrategy(strategy);
+
             yield return new WaitForSeconds(0.5f);
         }
     }
