@@ -29,11 +29,6 @@ public class Enemy : MonoBehaviour, IDamageable
             _coreTransform = core.transform;
     }
 
-    private void OnDisable()
-    {
-        
-    }
-
     private void Update()
     {
         if (_coreTransform == null) return;
