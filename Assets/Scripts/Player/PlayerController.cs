@@ -4,18 +4,20 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private ObjectPool bulletPool;
 
     private Rigidbody _rb;
     private Camera _cam;
-    private Vector2 _moveInput;
+    private IWeapon _weapon;
+    private HUDController _hud;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _cam = Camera.main;
+        _weapon = new BaseGun(bulletPool);
+        _hud = FindObjectOfType<HUDController>();
     }
 
     private void Update()
@@ -57,9 +59,12 @@ public class PlayerController : MonoBehaviour
     private void Shoot()
     {
         if (firePoint == null) return;
+        _weapon.Shoot(firePoint);
+    }
 
-        GameObject bullet = bulletPool.Get();
-        bullet.transform.position = firePoint.position;
-        bullet.transform.rotation = firePoint.rotation;
+    public void UpgradeToRapidFire()
+    {
+        _weapon = new RapidFireDecorator(_weapon);
+        _hud?.ShowUpgradeAlert("RAPID FIRE x3 Faster Bullets!");
     }
 }

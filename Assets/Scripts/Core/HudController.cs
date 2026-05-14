@@ -7,6 +7,7 @@ public class HUDController : MonoBehaviour
     [SerializeField] private Slider coreHealthBar;
     [SerializeField] private TextMeshProUGUI killCountText;
     [SerializeField] private TextMeshProUGUI waveText;
+    [SerializeField] private TextMeshProUGUI upgradeText;
 
     private int _waveNumber = 0;
 
@@ -41,5 +42,18 @@ public class HUDController : MonoBehaviour
         _waveNumber++;
         if (waveText != null)
             waveText.text = "Wave: " + _waveNumber;
+    }
+
+    public void ShowUpgradeAlert(string message)
+    {
+        if (upgradeText == null) return;
+        upgradeText.text = message;
+        upgradeText.gameObject.SetActive(true);
+        Invoke(nameof(HideUpgradeAlert), 2f);
+    }
+
+    private void HideUpgradeAlert()
+    {
+        upgradeText.gameObject.SetActive(false);
     }
 }
