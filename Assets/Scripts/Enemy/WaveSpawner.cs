@@ -4,10 +4,11 @@ using UnityEngine;
 public class WaveSpawner : MonoBehaviour
 {
     [SerializeField] private ObjectPool enemyPool;
+    [SerializeField] private ObjectPool flankerPool;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private int enemiesPerWave = 5;
     [SerializeField] private float timeBetweenWaves = 5f;
-    [SerializeField] private int totalWaves = 3;
+    [SerializeField] private int totalWaves = 2;
 
     private int _currentWave = 0;
     private int _enemiesAlive = 0;
@@ -48,7 +49,8 @@ public class WaveSpawner : MonoBehaviour
         for (int i = 0; i < enemiesPerWave; i++)
         {
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            GameObject enemy = enemyPool.Get();
+            ObjectPool pool = (i % 2 == 0) ? enemyPool : flankerPool;
+            GameObject enemy = pool.Get();
             enemy.transform.position = spawnPoint.position;
             yield return new WaitForSeconds(0.5f);
         }
