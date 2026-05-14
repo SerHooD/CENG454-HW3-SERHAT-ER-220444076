@@ -15,5 +15,6 @@ public class BaseGun : IWeapon
         GameObject bullet = _bulletPool.Get();
         bullet.transform.position = firePoint.position;
         bullet.transform.rotation = firePoint.rotation;
+        bullet.GetComponent<Bullet>().Init(_bulletPool);
     }
 }

@@ -6,6 +6,13 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float damage = 10f;
     [SerializeField] private float lifetime = 3f;
 
+    private ObjectPool _pool;
+
+    public void Init(ObjectPool pool)
+    {
+        _pool = pool;
+    }
+
     private void OnEnable()
     {
         Invoke(nameof(ReturnToPool), lifetime);
@@ -19,7 +26,6 @@ public class Bullet : MonoBehaviour
     private void Update()
     {
         transform.position += transform.forward * speed * Time.deltaTime;
-        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -33,6 +39,9 @@ public class Bullet : MonoBehaviour
 
     private void ReturnToPool()
     {
-        gameObject.SetActive(false);
+        if (_pool != null)
+            _pool.ReturnToPool(gameObject);
+        else
+            gameObject.SetActive(false);
     }
 }
