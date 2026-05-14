@@ -11,21 +11,25 @@ public class PlayerController : MonoBehaviour
     private Camera _cam;
     private IWeapon _weapon;
     private HUDController _hud;
+    private float _nextFireTime = 0f;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _cam = Camera.main;
         _weapon = new BaseGun(bulletPool);
-        _hud = FindObjectOfType<HUDController>();
+        _hud = FindFirstObjectByType<HUDController>();
     }
 
     private void Update()
     {
         HandleRotation();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        if (Mouse.current.leftButton.isPressed && Time.time >= _nextFireTime)
+        {
             Shoot();
+            _nextFireTime = Time.time + 1f / _weapon.FireRate;
+        }
     }
 
     private void FixedUpdate()
@@ -65,6 +69,6 @@ public class PlayerController : MonoBehaviour
     public void UpgradeToRapidFire()
     {
         _weapon = new RapidFireDecorator(_weapon);
-        _hud?.ShowUpgradeAlert("RAPID FIRE x3 Faster Bullets!");
+        _hud?.ShowUpgradeAlert("RAPID FIRE x3!");
     }
 }

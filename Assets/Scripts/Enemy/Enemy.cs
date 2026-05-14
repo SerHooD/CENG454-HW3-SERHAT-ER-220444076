@@ -3,26 +3,30 @@ using UnityEngine;
 public class Enemy : MonoBehaviour, IDamageable
 {
     [SerializeField] private float maxHealth = 30f;
-    [SerializeField] private float moveSpeed = 2f;
-    [SerializeField] private float damageToCore = 10f;
-    [SerializeField] private bool useFlanking = false;
+    [SerializeField] private float damageToCore = 20f;
 
     private float _currentHealth;
     private IMovementStrategy _movementStrategy;
     private Transform _coreTransform;
+    private ObjectPool _pool;
     private static int _killCount = 0;
 
     public float CurrentHealth => _currentHealth;
     public bool IsDead => _currentHealth <= 0f;
 
+    public void Init(ObjectPool pool)
+    {
+        _pool = pool;
+    }
+
+    public void SetStrategy(IMovementStrategy strategy)
+    {
+        _movementStrategy = strategy;
+    }
+
     private void OnEnable()
     {
         _currentHealth = maxHealth;
-
-        if (useFlanking)
-            _movementStrategy = new FlankMoveStrategy(moveSpeed);
-        else
-            _movementStrategy = new DirectMoveStrategy(moveSpeed);
 
         GameObject core = GameObject.FindWithTag("Core");
         if (core != null)
@@ -31,7 +35,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
     private void Update()
     {
-        if (_coreTransform == null) return;
+        if (_coreTransform == null || _movementStrategy == null) return;
         _movementStrategy.Move(transform, _coreTransform);
     }
 
@@ -45,7 +49,7 @@ public class Enemy : MonoBehaviour, IDamageable
         {
             _killCount++;
             GameEvents.EnemyKilled(_killCount);
-            gameObject.SetActive(false);
+            ReturnToPool();
         }
     }
 
@@ -54,7 +58,17 @@ public class Enemy : MonoBehaviour, IDamageable
         if (other.CompareTag("Core"))
         {
             other.GetComponent<IDamageable>()?.TakeDamage(damageToCore);
-            gameObject.SetActive(false);
+            _killCount++;
+            GameEvents.EnemyKilled(_killCount);
+            ReturnToPool();
         }
+    }
+
+    private void ReturnToPool()
+    {
+        if (_pool != null)
+            _pool.ReturnToPool(gameObject);
+        else
+            gameObject.SetActive(false); 
     }
 }
